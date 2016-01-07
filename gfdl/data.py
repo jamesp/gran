@@ -3,6 +3,7 @@
 import glob
 import os
 
+import pandas as pd
 import numpy as np
 import xray
 
@@ -33,7 +34,7 @@ def join_datasets(datasets, fields=None, avg_over=None):
 
     if avg_over and 'time' in avg_over:
         # the time dimension has been reduced, replace with 'month' dimension
-        dim = pd.Index(name='month', data=months)
+        dim = pd.Index(range(1, len(ext_data)+1), name='month')
     else:
         dim = 'time'
     return xray.concat(ext_data, dim=dim)
@@ -52,4 +53,4 @@ def datasets(filenames):
         with xray.open_dataset(f, decode_times=False) as data:
             data.filename = f
             yield data
-            #data.close()
+            data.close()
