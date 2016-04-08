@@ -57,7 +57,7 @@ def ertelPV(d, field_names={}):
 
 if __name__ == '__main__':
     # example calculating EPV for a GFDL dataset
-    d = xarray.open_dataset('/scratch/jp492/gfdl_data/ref_earth_grey/run20/daily.nc',
+    d = xarray.open_dataset('/scratch/jp492/gfdl_data/ref_earth/ref_earth_grey/run20/daily.nc',
         decode_times=False)
     d['epv'] = ertelPV(d)
     print d.epv
