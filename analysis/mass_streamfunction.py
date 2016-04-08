@@ -1,3 +1,6 @@
+import numpy as np
+import xarray
+
 def mass_streamfunction(data, a=6317.0e3, g=9.8):
     """Calculate the mass streamfunction for the atmosphere.
 
@@ -12,3 +15,12 @@ def mass_streamfunction(data, a=6317.0e3, g=9.8):
     vbar = data.vcomp.mean('lon')
     c = 2*np.pi*a*np.cos(vbar.lat*np.pi/180) / g
     return c*np.cumsum(vbar, axis=vbar.dims.index('pfull'))
+
+
+if __name__ == '__main__':
+    # example calculating EPV for a GFDL dataset
+    d = xarray.open_dataset('/scratch/jp492/gfdl_data/ref_earth/ref_earth_grey/run20/daily.nc',
+        decode_times=False)
+    d['mass_sf'] = mass_streamfunction(d)
+    print d.mass_sf
+    d.close()
