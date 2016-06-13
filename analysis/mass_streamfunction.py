@@ -15,7 +15,7 @@ def mass_streamfunction(data, a=6317.0e3, g=9.8):
     vbar = data.vcomp.mean('lon')
     c = 2*np.pi*a*np.cos(vbar.lat*np.pi/180) / g
     # take a diff of half levels, and assign to pfull coordinates
-    dp=xarray.DataArray(data.phalf.diff('phalf').values*100, coords=[('pfull', data.pfull)])
+    dp = xarray.DataArray(data.phalf.diff('phalf').values*100, coords=[('pfull', data.pfull)])
     return c*np.cumsum(vbar*dp, axis=vbar.dims.index('pfull'))
 
 
