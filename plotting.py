@@ -3,8 +3,12 @@ import warnings
 
 import numpy as np
 import matplotlib.pyplot as plt
+from xarray.plot.utils import _load_default_cmap
 
 from execlim.util import nearest_val, absmax
+
+seq_cmap = _load_default_cmap()
+div_cmap = plt.cm.RdBu_r
 
 def neutral_levels(array, nlevels=13, zero_fac=0.05, max_fac=0.95):
     """Create a set of colour levels with a white region +/-zero_fac*100% either side of zero.
@@ -68,8 +72,10 @@ def plot_lat_press(array, ax, divergent=True):
 
     if divergent:
         lev = neutral_levels(dat, nlevels=15, max_fac=1.0, zero_fac=0.05)
+        cmap = div_cmap
     else:
         lev = 15
+        cmap = seq_cmap
 
     p = dat.plot.contourf(x='lat', y='pfull', levels=lev, ax=ax)
 
@@ -91,10 +97,10 @@ def plot_lat_lon(array, ax, divergent=True):
 
     if divergent:
         lev = neutral_levels(dat, nlevels=15, max_fac=1.0, zero_fac=0.05)
-        cmap = plt.cm.RdBu_r
+        cmap = div_cmap
     else:
         lev = 15
-        cmap = plt.cm.BuGn
+        cmap = seq_cmap
 
     p = dat.plot.contourf(x='lon', y='lat', levels=lev, ax=ax, cmap=cmap)
 
