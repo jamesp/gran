@@ -18,4 +18,9 @@ setup(name='gran',
       author='James Penn',
       url='https://github.com/jamesp/gran',
       packages=['gran'],
+      install_requires=[
+        'numpy',
+        'xarray',
+        'scipy'
+      ]
      )

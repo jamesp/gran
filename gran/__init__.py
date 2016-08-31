@@ -1,2 +1,2 @@
-# uncomment for auto-import sub module gfdl
-# from . import gfdl
+from . import util
+from . import domain
