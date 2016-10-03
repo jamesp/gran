@@ -2,13 +2,13 @@
 
 To use, you must first compile the fortran file epv.f90:
 
-    $ cd ShareCode/execlim/analysis
+    $ cd gran/analysis
     $ f2py -m -c _epv epv.f90
 """
 import numpy as np
 import xarray
 
-from execlim.analysis import get_pressure
+from gran.util import get_pressure
 import _epv
 
 __all__ = ['theta', 'ertelPV']

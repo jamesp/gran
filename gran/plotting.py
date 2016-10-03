@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from xarray.plot.utils import _load_default_cmap
 
-from execlim.util import nearest_val, absmax
+from .util import nearest_val, absmax
 
 seq_cmap = _load_default_cmap()
 div_cmap = plt.cm.RdBu_r

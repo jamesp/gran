@@ -1,18 +1,29 @@
 import numpy as np
 import xarray
 
-def mass_streamfunction(data, a=6317.0e3, g=9.8):
+def mass_streamfunction(data, v='vcomp', a=6317.0e3, g=9.8):
     """Calculate the mass streamfunction for the atmosphere.
 
     Based on a vertical integral of the meridional wind.
     Ref: Physics of Climate, Peixoto & Oort, 1992.  p158.
 
-    `a` is the radius of the planet (default Earth 6317km).
-    `g` is surface gravity (default Earth 9.8m/s^2).
+    Parameters
+    ----------
+    data :  xarray.DataSet
+        GCM output data
+    v : str, optional
+        The name of the meridional flow field in `data`.  Default: 'vcomp'
+    a : float, optional
+        The radius of the planet. Default: Earth 6317km
+    g : float, optional
+        Surface gravity. Default: Earth 9.8m/s^2
 
-    Returns an xarray DataArray of mass streamfunction.
+    Returns
+    -------
+    streamfunction : xarray.DataArray
+        The meridional mass streamfunction.
     """
-    vbar = data.vcomp.mean('lon')
+    vbar = data[v].mean('lon')
     c = 2*np.pi*a*np.cos(vbar.lat*np.pi/180) / g
     # take a diff of half levels, and assign to pfull coordinates
     dp = xarray.DataArray(data.phalf.diff('phalf').values*100, coords=[('pfull', data.pfull)])

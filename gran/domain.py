@@ -5,6 +5,63 @@ import xarray as xr
 
 from .util import rng
 
+def calculate_dlatlon(domain):
+    """Calculate the grid size, in radians, for a dataset.
+
+    Parameters
+    ----------
+    domain : GFDLDataset (xarray.DataSet)
+
+    Returns
+    -------
+    dlat, dlon : xarray.DataArray, xarray.DataArray
+        dlat, dlon in radians for the grid.  Indexed by `lat` and `lon`.
+    """
+    rad = np.pi / 180
+    coslat = np.cos(domain.lat * rad)
+
+    dlon = (domain.lonb*rad).diff('lonb').rename({'lonb': 'dlon'}).rename({'lonb': 'lon'})
+    dlon['lon'] = domain.lon
+
+    dlat = (domain.latb*rad).diff('latb').rename({'latb': 'dlat'}).rename({'latb': 'lat'})
+    dlat['lat'] = domain.lat
+
+    return dlat, dlon
+
+def calculate_dA(domain):
+    rad = np.pi / 180
+    coslat = np.cos(domain.lat * rad)
+    dlat, dlon = calculate_dlatlon(domain)
+
+    dA = dlat*dlon*coslat
+    return dA
+
+def make_surf_integrator(domain, radius=1.0):
+    """Generate a surface integrator.
+
+    For a given GFDL domain on a sphere of given `radius`, returns
+    a function that calculates the area weighted sum
+    of a scalar field over latitude and longitude.
+
+    Parameters
+    ----------
+    domain : GFDLDataSet : xarray.DataSet
+        The domain on which fields are discretised.  Should have coordinates
+            `lat`, `latb`, `lon`, `lonb`.
+    radius : float, optional (default=1.0)
+        The radius of the sphere
+
+    Returns
+    -------
+    integrator : function
+        A function that can be applied to xarray.DataArrays to reduce
+        the `lat` and `lon` dimensions.
+    """
+    dA = calculate_dA(domain)
+    def integrator(field):
+        return radius**2*(field*dA).sum(('lat', 'lon'))
+    return integrator
+
 
 def resample_latlon(field, nlat=None, nlon=None, lats=None, lons=None, method='interpolate'):
     if nlat is None:
@@ -41,3 +98,38 @@ def resample_latlon(field, nlat=None, nlon=None, lats=None, lons=None, method='i
         return rescaled
     else:
         raise AttributeError('unknown resampling method %r' % method)
+
+def center_lon(field, wrap=False, nearest=False, **kwargs):
+    """Redefine longitude coordinates with a new origin.
+
+    Parameters
+    ----------
+    field : The xarray field to be rebased
+    wrap : boolean, optional
+        If `True`, centre the new longitude axis so that it ranges from [-180, 180].
+        If `False` (default), recentred axis ranges [0, 360].
+    nearest : boolean, optional
+        If `True`, find the nearest lon value in the field and use that.  Ensures
+        that lon coordinate labels are the same as input data.
+    **kwargs : dict
+        The longitude axes and new origins for the field.  e.g. lon=180.
+
+    Returns
+    -------
+    recentred : xarray.DataArray
+        A copy of `field` with the origin of lon axis moved.
+    """
+    q  = field.copy(deep=False)
+    for dim in kwargs:
+        if nearest:
+            lon0 = q[dim].sel(method='nearest', **{dim:kwargs[dim]}).values
+        else:
+            lon0 = kwargs[dim]
+        newlon = field[dim] - lon0
+        newlon = np.mod(newlon+360.0, 360.0)
+        if wrap:
+            newlon[newlon > 180] = (newlon - 360)[newlon > 180]
+        q[dim] = newlon
+        ilon = q[dim].argsort()
+        q = q.isel(**{dim: ilon})
+    return q

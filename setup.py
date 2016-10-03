@@ -5,7 +5,7 @@
 #		$ pip install -e .
 # This installs the package in *development mode* i.e. any changes you make to these files
 # or any additional files you add will be immediately available.
-# In a new python console, from any directory, you can now access the execlim code:
+# In a new python console, from any directory, you can now use the gran code:
 # 		>>> from gran import util
 #		>>> d = gran.util.resample_latlon(...)
 #
