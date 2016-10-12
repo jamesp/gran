@@ -21,10 +21,10 @@ def calculate_dlatlon(domain):
     coslat = np.cos(domain.lat * rad)
 
     dlon = (domain.lonb*rad).diff('lonb').rename({'lonb': 'dlon'}).rename({'lonb': 'lon'})
-    dlon['lon'] = domain.lon
+    dlon['lon'] = domain.lon.values
 
     dlat = (domain.latb*rad).diff('latb').rename({'latb': 'dlat'}).rename({'latb': 'lat'})
-    dlat['lat'] = domain.lat
+    dlat['lat'] = domain.lat.values
 
     return dlat, dlon
 
